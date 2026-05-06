@@ -1,5 +1,6 @@
 import { Sequelize } from 'sequelize';
 import mysql from 'mysql2/promise';
+import mysql2 from 'mysql2';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -37,6 +38,7 @@ const sequelize = new Sequelize(
     host: dbConfig.host,
     port: dbConfig.port,
     dialect: 'mysql',
+    dialectModule: mysql2, // Fixed: Explicitly pass mysql2 for Vercel compatibility
     logging: false,
     pool: {
       max: 5, // Reduced for serverless
