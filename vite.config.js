@@ -1,6 +1,6 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-const API_BASE_URL = "https://smarthrmanagementsystem.onrender.com";
+const API_BASE_URL = "https://smart-hr-management-system-two.vercel.app";
 
 // https://vite.dev/config/
 export default defineConfig({
