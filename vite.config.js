@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-const SERVER_URL = "http://localhost:5000";
+const SERVER_URL = "https://smart-hr-management-system-two.vercel.app";
 
 export default defineConfig({
   plugins: [react()],

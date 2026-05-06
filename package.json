@@ -4,33 +4,20 @@
   "version": "0.0.0",
   "type": "module",
   "license": "MIT",
-
   "scripts": {
     "postinstall": "node scripts/patch-vite-netuse.mjs",
-
     "dev": "vite",
-
     "server": "node server/index.js",
-
     "dev:full": "concurrently \"npm:server\" \"npm:dev\"",
-
     "build": "vite build",
-
     "preview": "vite preview",
-
     "lint": "eslint .",
-
     "db:sync": "node server/migrate-to-mysql.js",
-
     "seed": "node server/seed-mysql.js",
-
     "migrate:mysql": "node server/migrate-to-mysql.js",
-
     "seed:mysql": "node server/seed-mysql.js",
-
     "start": "node api/index.js"
   },
-
   "dependencies": {
     "@tailwindcss/vite": "^4.2.2",
     "canvg": "^4.0.3",
@@ -42,7 +29,7 @@
     "jspdf": "^4.2.1",
     "lucide-react": "^1.7.0",
     "multer": "^2.1.1",
-    "mysql2": "^3.22.2",
+    "mysql2": "^3.22.3",
     "nodemailer": "^8.0.7",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
@@ -50,7 +37,6 @@
     "sequelize": "^6.37.8",
     "tailwindcss": "^4.2.2"
   },
-
   "devDependencies": {
     "@eslint/js": "^9.39.4",
     "@tailwindcss/postcss": "^4.2.4",
