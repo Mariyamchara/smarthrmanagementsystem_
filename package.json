@@ -28,7 +28,7 @@
 
     "seed:mysql": "node server/seed-mysql.js",
 
-    "start": "node server/index.js"
+    "start": "node api/index.js"
   },
 
   "dependencies": {
