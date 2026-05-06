@@ -1,0 +1,32 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.mysql-data/
+mysql-local-data/
+.mysql-local.ini
+mysql-local-init.sql
+.codex-server.out.log
+.codex-server.err.log
+.mysql-local.out.log
+.mysql-local.stderr.log
