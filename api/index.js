@@ -24,6 +24,7 @@ import PasswordReset from "../server/models-mysql/PasswordReset.js";
 import { hashPassword, isHashedPassword, verifyPassword } from "../server/utils/password.js";
 import { sendOtpEmail } from "../server/utils/email.js";
 
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const envPath = path.resolve(__dirname, "..", ".env");
@@ -33,10 +34,14 @@ dotenv.config({ path: envPath, quiet: true });
 const app = express();
 const port = Number(process.env.PORT || 5000);
 const serverStartedAt = new Date().toISOString();
-const uploadsRoot = path.join(__dirname, "..", "uploads");
+const isVercel = process.env.VERCEL === '1';
+const uploadsRoot = isVercel ? "/tmp" : path.join(__dirname, "..", "uploads");
 const profileUploadsDir = path.join(uploadsRoot, "profiles");
 
-fs.mkdirSync(profileUploadsDir, { recursive: true });
+// Ensure directories exist (only locally, Vercel /tmp is ready)
+if (!isVercel) {
+  fs.mkdirSync(profileUploadsDir, { recursive: true });
+}
 
 const profileImageStorage = multer.diskStorage({
   destination: (_req, _file, cb) => cb(null, profileUploadsDir),
@@ -66,8 +71,19 @@ const uploadProfileImage = multer({
   },
 });
 
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://smart-hr-management-system-two.vercel.app"
+];
+
 app.use(cors({
-  origin: "http://localhost:5173",
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
   credentials: true
 }));
 app.use(express.json({ limit: "50mb" }));
@@ -2244,19 +2260,25 @@ async function startServer() {
   
   try {
     await connectToDatabase();
-    await sequelize.sync({ alter: true });
-    await ensureAppSettingsDefaults();
-    await ensureSeedDepartments();
-    await ensureSeedEmployees();
-    await ensureSeedAdminProfile();
-    await ensureEmployeeDepartmentsExist();
-    await ensureSeedLeaves();
-    await upgradePlaintextPasswords();
+    
+    // In serverless, we only sync and seed if explicitly requested via env or on first run
+    // Syncing on every request can be slow and cause timeouts
+    if (process.env.DB_SYNC === 'true') {
+      await sequelize.sync({ alter: true });
+      await ensureAppSettingsDefaults();
+      await ensureSeedDepartments();
+      await ensureSeedEmployees();
+      await ensureSeedAdminProfile();
+      await ensureEmployeeDepartmentsExist();
+      await ensureSeedLeaves();
+      await upgradePlaintextPasswords();
+    }
     
     initialized = true;
-    console.log("Database initialized and seeds ensured.");
+    console.log("Database initialized.");
   } catch (error) {
     console.error("Initialization failed:", error);
+    throw error;
   }
 }
 
@@ -2266,11 +2288,10 @@ app.use(async (req, res, next) => {
     await startServer();
     next();
   } catch (error) {
-    console.error("Initialization error:", error);
     res.status(500).json({ 
       error: "Failed to initialize server", 
       details: error.message,
-      tip: "Check your Vercel Environment Variables (DB credentials)." 
+      tip: "Verify your Vercel Environment Variables (DB credentials)." 
     });
   }
 });
