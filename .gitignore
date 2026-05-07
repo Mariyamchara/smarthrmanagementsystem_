@@ -30,3 +30,8 @@ mysql-local-init.sql
 .codex-server.err.log
 .mysql-local.out.log
 .mysql-local.stderr.log
+.env
+.env.local
+build/
+uploads/
+coverage/
