@@ -73,7 +73,7 @@ const uploadProfileImage = multer({
 
 const allowedOrigins = [
   "http://localhost:5173",
-  "https://smart-hr-management-system-two.vercel.app"
+  "https://smarthrmanagementsystem.vercel.app"
 ];
 
 app.use(cors({
