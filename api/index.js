@@ -71,6 +71,7 @@ const uploadProfileImage = multer({
   },
 });
 
+
 const allowedOrigins = [
   "http://localhost:5173",
   "https://smarthrmanagementsystem.vercel.app"
