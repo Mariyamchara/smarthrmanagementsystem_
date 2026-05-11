@@ -230,7 +230,7 @@ export default function Employees() {
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: "1fr 1fr",
+                gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
                 gap: "15px",
               }}
             >
@@ -701,7 +701,7 @@ export default function Employees() {
               <div
                 style={{
                   display: "grid",
-                  gridTemplateColumns: "1fr 1fr",
+                  gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
                   gap: "12px",
                 }}
               >
@@ -1052,7 +1052,7 @@ const sectionTitleStyle = {
 };
 const detailRowStyle = {
   display: "grid",
-  gridTemplateColumns: "130px 1fr",
+  gridTemplateColumns: "repeat(auto-fit, minmax(100px, 1fr))",
   gap: 12,
   alignItems: "start",
   borderTop: "1px solid #f1f5f9",

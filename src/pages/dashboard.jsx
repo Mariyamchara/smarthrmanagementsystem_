@@ -21,15 +21,21 @@ export default function Dashboard() {
   useEffect(() => {
     const loadDashboard = async () => {
       try {
-        const [profileData, employeeData, departmentData, assetData, leaveData, incrementData] =
-          await Promise.all([
-            getAdminProfile(),
-            employeesApi.getAll(),
-            getDepartments(),
-            assetsApi.getAll(),
-            leavesApi.getAll(),
-            salaryIncrementService.getAll(),
-          ]);
+        const [
+          profileData,
+          employeeData,
+          departmentData,
+          assetData,
+          leaveData,
+          incrementData,
+        ] = await Promise.all([
+          getAdminProfile(),
+          employeesApi.getAll(),
+          getDepartments(),
+          assetsApi.getAll(),
+          leavesApi.getAll(),
+          salaryIncrementService.getAll(),
+        ]);
 
         setProfile(profileData);
         setEmployees(employeeData);
@@ -47,10 +53,10 @@ export default function Dashboard() {
 
   const pendingLeaves = leaves.filter((leave) => leave.status === "Pending");
   const pendingIncrements = increments.filter((item) =>
-    ["Pending", "Pending Approval"].includes(item.status)
+    ["Pending", "Pending Approval"].includes(item.status),
   );
   const filteredEmployees = employees.filter((employee) =>
-    employee.name.toLowerCase().includes(search.toLowerCase())
+    employee.name.toLowerCase().includes(search.toLowerCase()),
   );
 
   const stats = useMemo(
@@ -88,13 +94,23 @@ export default function Dashboard() {
         onClick: () => navigate("/salaries"),
       },
     ],
-    [assets.length, departments.length, employees, leaves.length, navigate, pendingIncrements.length, pendingLeaves.length]
+    [
+      assets.length,
+      departments.length,
+      employees,
+      leaves.length,
+      navigate,
+      pendingIncrements.length,
+      pendingLeaves.length,
+    ],
   );
 
   const recentEmployees = filteredEmployees.slice(0, 5);
   const departmentCards = departments.slice(0, 6).map((department) => ({
     name: department.dep_name,
-    count: employees.filter((employee) => employee.department === department._id).length,
+    count: employees.filter(
+      (employee) => employee.department === department._id,
+    ).length,
     code: department._id,
   }));
 
@@ -150,7 +166,7 @@ export default function Dashboard() {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(4, minmax(0,1fr))",
+          gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
           gap: 14,
           marginBottom: 24,
         }}
@@ -184,11 +200,27 @@ export default function Dashboard() {
                 }}
               />
             </div>
-            <p style={{ fontSize: 24, fontWeight: 600, color: "#1A1D23", lineHeight: 1.1 }}>
+            <p
+              style={{
+                fontSize: 24,
+                fontWeight: 600,
+                color: "#1A1D23",
+                lineHeight: 1.1,
+              }}
+            >
               {item.value}
             </p>
-            <p style={{ fontSize: 13, color: "#6B7280", marginTop: 2 }}>{item.label}</p>
-            <p style={{ fontSize: 11.5, color: item.color, marginTop: 6, fontWeight: 500 }}>
+            <p style={{ fontSize: 13, color: "#6B7280", marginTop: 2 }}>
+              {item.label}
+            </p>
+            <p
+              style={{
+                fontSize: 11.5,
+                color: item.color,
+                marginTop: 6,
+                fontWeight: 500,
+              }}
+            >
               {item.change}
             </p>
           </button>
@@ -198,13 +230,20 @@ export default function Dashboard() {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "1fr 1fr",
+          gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
           gap: 16,
           marginBottom: 16,
         }}
       >
         <div className="card">
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              marginBottom: 16,
+            }}
+          >
             <h2 style={{ fontSize: 14, fontWeight: 600 }}>Recent employees</h2>
             <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
               <div style={{ position: "relative" }}>
@@ -216,7 +255,12 @@ export default function Dashboard() {
                   stroke="#9CA3AF"
                   strokeWidth="2"
                   strokeLinecap="round"
-                  style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)" }}
+                  style={{
+                    position: "absolute",
+                    left: 10,
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                  }}
                 >
                   <circle cx="11" cy="11" r="8" />
                   <line x1="21" y1="21" x2="16.65" y2="16.65" />
@@ -231,7 +275,14 @@ export default function Dashboard() {
               <button
                 type="button"
                 onClick={() => navigate("/employees")}
-                style={{ fontSize: 12, color: "#6C63FF", cursor: "pointer", fontWeight: 500, border: "none", background: "transparent" }}
+                style={{
+                  fontSize: 12,
+                  color: "#6C63FF",
+                  cursor: "pointer",
+                  fontWeight: 500,
+                  border: "none",
+                  background: "transparent",
+                }}
               >
                 View all →
               </button>
@@ -239,7 +290,18 @@ export default function Dashboard() {
           </div>
           {recentEmployees.map((employee, index) => (
             <div key={employee._id} className="row-item">
-              <div className="avatar" style={{ background: ["#6C63FF", "#10B981", "#F59E0B", "#EC4899", "#3B82F6"][index % 5] }}>
+              <div
+                className="avatar"
+                style={{
+                  background: [
+                    "#6C63FF",
+                    "#10B981",
+                    "#F59E0B",
+                    "#EC4899",
+                    "#3B82F6",
+                  ][index % 5],
+                }}
+              >
                 {employee.name
                   .split(" ")
                   .map((part) => part[0])
@@ -247,9 +309,14 @@ export default function Dashboard() {
                   .slice(0, 2)}
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <p style={{ fontSize: 13.5, fontWeight: 500, color: "#1A1D23" }}>{employee.name}</p>
+                <p
+                  style={{ fontSize: 13.5, fontWeight: 500, color: "#1A1D23" }}
+                >
+                  {employee.name}
+                </p>
                 <p style={{ fontSize: 12, color: "#9CA3AF", marginTop: 1 }}>
-                  {employee.designation || "No designation"} · {employee.departmentName || employee.department}
+                  {employee.designation || "No designation"} ·{" "}
+                  {employee.departmentName || employee.department}
                 </p>
               </div>
               <span className="badge badge-active">Active</span>
@@ -258,7 +325,14 @@ export default function Dashboard() {
         </div>
 
         <div className="card">
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              marginBottom: 16,
+            }}
+          >
             <h2 style={{ fontSize: 14, fontWeight: 600 }}>Leave requests</h2>
             <button
               type="button"
@@ -281,7 +355,12 @@ export default function Dashboard() {
             <div key={leave.id} className="row-item">
               <div
                 className="avatar"
-                style={{ background: ["#6C63FF", "#10B981", "#F59E0B", "#EC4899"][index % 4], fontSize: 11 }}
+                style={{
+                  background: ["#6C63FF", "#10B981", "#F59E0B", "#EC4899"][
+                    index % 4
+                  ],
+                  fontSize: 11,
+                }}
               >
                 {leave.name
                   .split(" ")
@@ -289,7 +368,11 @@ export default function Dashboard() {
                   .join("")}
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <p style={{ fontSize: 13.5, fontWeight: 500, color: "#1A1D23" }}>{leave.name}</p>
+                <p
+                  style={{ fontSize: 13.5, fontWeight: 500, color: "#1A1D23" }}
+                >
+                  {leave.name}
+                </p>
                 <p style={{ fontSize: 12, color: "#9CA3AF", marginTop: 1 }}>
                   {leave.type} · {leave.dates}
                 </p>
@@ -303,17 +386,37 @@ export default function Dashboard() {
       </div>
 
       <div className="card">
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            marginBottom: 16,
+          }}
+        >
           <h2 style={{ fontSize: 14, fontWeight: 600 }}>Departments</h2>
           <button
             type="button"
             onClick={() => navigate("/departments")}
-            style={{ fontSize: 12, color: "#6C63FF", cursor: "pointer", fontWeight: 500, border: "none", background: "transparent" }}
+            style={{
+              fontSize: 12,
+              color: "#6C63FF",
+              cursor: "pointer",
+              fontWeight: 500,
+              border: "none",
+              background: "transparent",
+            }}
           >
             Manage →
           </button>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0,1fr))", gap: 10 }}>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+            gap: 10,
+          }}
+        >
           {departmentCards.map((department, index) => (
             <button
               key={department.code}
@@ -330,8 +433,16 @@ export default function Dashboard() {
                 background: "#fff",
               }}
             >
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                <span style={{ fontSize: 13.5, fontWeight: 500, color: "#1A1D23" }}>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                }}
+              >
+                <span
+                  style={{ fontSize: 13.5, fontWeight: 500, color: "#1A1D23" }}
+                >
                   {department.name}
                 </span>
                 <span style={{ fontSize: 12, color: "#9CA3AF" }}>
@@ -343,7 +454,14 @@ export default function Dashboard() {
                   style={{
                     height: "100%",
                     width: `${Math.max(12, Math.min(100, department.count * 18))}%`,
-                    background: ["#6C63FF", "#10B981", "#F59E0B", "#EC4899", "#3B82F6", "#8B5CF6"][index % 6],
+                    background: [
+                      "#6C63FF",
+                      "#10B981",
+                      "#F59E0B",
+                      "#EC4899",
+                      "#3B82F6",
+                      "#8B5CF6",
+                    ][index % 6],
                     borderRadius: 99,
                   }}
                 />

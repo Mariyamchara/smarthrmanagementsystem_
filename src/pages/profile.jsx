@@ -249,7 +249,11 @@ const AdminProfile = () => {
                     <img
                       src={adminData.image}
                       alt={adminData.name || "Admin profile"}
-                      style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                      }}
                     />
                   ) : (
                     initials
@@ -340,7 +344,7 @@ const AdminProfile = () => {
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: "1fr 1fr",
+                gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
                 gap: 16,
               }}
             >

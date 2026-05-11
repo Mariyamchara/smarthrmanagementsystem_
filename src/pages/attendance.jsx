@@ -42,7 +42,7 @@ export default function Attendance() {
       </div>
 
       {/* Summary Cards */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "16px", padding: "20px 0 10px" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(100px, 1fr))", gap: "16px", padding: "20px 0 10px" }}>
         {cards.map((card) => (
           <div
             key={card.label}

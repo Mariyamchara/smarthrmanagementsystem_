@@ -38,23 +38,47 @@ function Breadcrumb() {
 
   const crumbs = segments.map((seg, i) => {
     const path = "/" + segments.slice(0, i + 1).join("/");
-    const label = ROUTE_LABELS[seg] || seg.charAt(0).toUpperCase() + seg.slice(1);
+    const label =
+      ROUTE_LABELS[seg] || seg.charAt(0).toUpperCase() + seg.slice(1);
     const isLast = i === segments.length - 1;
     return { path, label, isLast };
   });
 
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 13, color: "#6b7280" }}>
-      <Link to="/dashboard" style={{ color: "#6b7280", textDecoration: "none" }}>Home</Link>
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 4,
+        fontSize: "clamp(11px, 2vw, 13px)",
+        color: "#6b7280",
+        overflow: "hidden",
+      }}
+    >
+      <Link
+        to="/dashboard"
+        style={{
+          color: "#6b7280",
+          textDecoration: "none",
+          whiteSpace: "nowrap",
+        }}
+      >
+        Home
+      </Link>
       {crumbs.map((crumb) => (
         <React.Fragment key={crumb.path}>
           <span style={{ color: "#d1d5db" }}>›</span>
           {crumb.isLast ? (
-            <span style={{ color: "#111827", fontWeight: 600 }}>{crumb.label}</span>
+            <span style={{ color: "#111827", fontWeight: 600 }}>
+              {crumb.label}
+            </span>
           ) : (
-            <Link to={crumb.path} style={{ color: "#6b7280", textDecoration: "none" }}
+            <Link
+              to={crumb.path}
+              style={{ color: "#6b7280", textDecoration: "none" }}
               onMouseEnter={(e) => (e.target.style.color = "#3f3d9c")}
-              onMouseLeave={(e) => (e.target.style.color = "#6b7280")}>
+              onMouseLeave={(e) => (e.target.style.color = "#6b7280")}
+            >
               {crumb.label}
             </Link>
           )}
@@ -66,7 +90,9 @@ function Breadcrumb() {
 
 function Navbar({ onMenuToggle }) {
   const navigate = useNavigate();
-  const [adminProfile, setAdminProfile] = useState(() => getStoredAdminSession());
+  const [adminProfile, setAdminProfile] = useState(() =>
+    getStoredAdminSession(),
+  );
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -99,18 +125,30 @@ function Navbar({ onMenuToggle }) {
   };
 
   return (
-    <div style={{
-      height: "60px",
-      background: "white",
-      display: "flex",
-      justifyContent: "space-between",
-      alignItems: "center",
-      padding: "0 20px",
-      borderBottom: "1px solid #e5e7eb"
-    }}>
-      
+    <div
+      style={{
+        height: "60px",
+        background: "white",
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        padding: "0 clamp(12px, 3vw, 20px)",
+        borderBottom: "1px solid #e5e7eb",
+        gap: "8px",
+        flexWrap: "wrap",
+        minHeight: "60px",
+      }}
+    >
       {/* Left */}
-      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 12,
+          minWidth: 0,
+          flex: 1,
+        }}
+      >
         <button
           type="button"
           onClick={onMenuToggle}
@@ -125,16 +163,26 @@ function Navbar({ onMenuToggle }) {
             background: "#F3F4F6",
             color: "#1F2937",
             cursor: "pointer",
+            flexShrink: 0,
           }}
           aria-label="Toggle sidebar"
         >
           <AlignJustify size={18} />
         </button>
-        <Breadcrumb />
+        <div style={{ minWidth: 0, overflow: "hidden" }}>
+          <Breadcrumb />
+        </div>
       </div>
 
       {/* Right */}
-      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "clamp(8px, 2vw, 12px)",
+          flexShrink: 0,
+        }}
+      >
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <div
             style={{
@@ -148,20 +196,43 @@ function Navbar({ onMenuToggle }) {
               justifyContent: "center",
               fontSize: 12,
               fontWeight: 700,
+              flexShrink: 0,
             }}
           >
             {initials || "AD"}
           </div>
-          <div style={{ lineHeight: 1.1 }}>
-            <div style={{ fontSize: 13, fontWeight: 600 }}>{adminProfile?.name || "Admin"}</div>
+          <div
+            style={{
+              lineHeight: 1.1,
+              display: "none",
+              "@media (minWidth: 640px)": { display: "block" },
+            }}
+          >
+            <div style={{ fontSize: 13, fontWeight: 600 }}>
+              {adminProfile?.name || "Admin"}
+            </div>
             <div style={{ fontSize: 11, color: "#6b7280" }}>
               {adminProfile?.email || adminProfile?.username || ""}
             </div>
           </div>
         </div>
-        <button onClick={handleLogout} style={{ marginRight: "10px", padding: "7px 16px", borderRadius: 8, border: "none", background: "#3f3d9c", color: "white", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>Log Out</button>
+        <button
+          onClick={handleLogout}
+          style={{
+            padding: "7px 12px",
+            borderRadius: 8,
+            border: "none",
+            background: "#3f3d9c",
+            color: "white",
+            fontWeight: 600,
+            fontSize: 12,
+            cursor: "pointer",
+            whiteSpace: "nowrap",
+          }}
+        >
+          Log Out
+        </button>
       </div>
-
     </div>
   );
 }

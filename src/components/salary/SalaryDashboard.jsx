@@ -42,7 +42,9 @@ function SalaryDashboard() {
         setError(null);
       } catch (err) {
         console.error("Error loading employees:", err);
-        setError("Failed to load employees. Check that the backend server is running.");
+        setError(
+          "Failed to load employees. Check that the backend server is running.",
+        );
         setEmployees([]);
       } finally {
         setLoading(false);
@@ -53,13 +55,14 @@ function SalaryDashboard() {
   }, []);
 
   const saveCompensation = async (employee, updates) => {
-    const updatedEmployee = await employeeService.updateCompensation(employee._id, updates);
+    const updatedEmployee = await employeeService.updateCompensation(
+      employee._id,
+      updates,
+    );
     setEmployees((current) =>
       current.map((item) =>
-        item._id === updatedEmployee._id
-          ? updatedEmployee
-          : item
-      )
+        item._id === updatedEmployee._id ? updatedEmployee : item,
+      ),
     );
   };
 
@@ -87,74 +90,148 @@ function SalaryDashboard() {
     searchId.trim() === ""
       ? employees
       : employees.filter((employee) =>
-          employee.id.toLowerCase().includes(searchId.toLowerCase())
+          employee.id.toLowerCase().includes(searchId.toLowerCase()),
         );
 
   return (
     <div style={{ backgroundColor: "#f3f4f6", minHeight: "100vh" }}>
-
       {/* Page Header */}
-      <div style={{ background: "#3f3d9c", color: "white", padding: "25px 30px", borderRadius: "8px 8px 0 0", margin: "30px 30px 0", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+      <div
+        style={{
+          background: "#3f3d9c",
+          color: "white",
+          padding: "clamp(16px, 5vw, 25px) clamp(16px, 5vw, 30px)",
+          borderRadius: "8px 8px 0 0",
+          margin: "clamp(16px, 5vw, 30px)",
+          display: "flex",
+          flexDirection: "column",
+          gap: "clamp(12px, 3vw, 20px)",
+          alignItems: "flex-start",
+          justifyContent: "space-between",
+        }}
+      >
         <div>
-          <h1 style={{ margin: 0, fontSize: "28px", fontWeight: "bold" }}>Salary Management</h1>
-          <p style={{ marginTop: "6px", fontSize: "16px", opacity: 0.85 }}>Manage employee salaries and payroll</p>
+          <h1
+            style={{
+              margin: 0,
+              fontSize: "clamp(20px, 5vw, 28px)",
+              fontWeight: "bold",
+            }}
+          >
+            Salary Management
+          </h1>
+          <p
+            style={{
+              marginTop: "6px",
+              fontSize: "clamp(13px, 3vw, 16px)",
+              opacity: 0.85,
+            }}
+          >
+            Manage employee salaries and payroll
+          </p>
         </div>
-        <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+        <div
+          style={{
+            display: "flex",
+            gap: "clamp(8px, 2vw, 12px)",
+            alignItems: "center",
+            width: "100%",
+            flexWrap: "wrap",
+          }}
+        >
           <input
             type="text"
             placeholder="Search employee by id..."
             value={searchId}
             onChange={(e) => setSearchId(e.target.value)}
-            style={{ padding: "8px 14px", borderRadius: 6, border: "none", fontSize: 14, width: 220, outline: "none", background: "white", color: "#111" }}
+            style={{
+              padding: "8px 14px",
+              borderRadius: 6,
+              border: "none",
+              fontSize: 14,
+              flex: 1,
+              minWidth: "150px",
+              outline: "none",
+              background: "white",
+              color: "#111",
+            }}
           />
           <button
             onClick={() => setShowPayroll(true)}
-            style={{ padding: "8px 18px", borderRadius: 6, border: "none", background: "#2e2c7a", color: "white", fontWeight: 700, cursor: "pointer", fontSize: 14, whiteSpace: "nowrap" }}
+            style={{
+              padding: "8px 18px",
+              borderRadius: 6,
+              border: "none",
+              background: "#2e2c7a",
+              color: "white",
+              fontWeight: 700,
+              cursor: "pointer",
+              fontSize: 14,
+              whiteSpace: "nowrap",
+            }}
           >
             Generate Payroll
           </button>
         </div>
       </div>
 
-      <div className="salary-page" style={{ margin: "0 30px 30px" }}>
-      {loading && (
-        <div style={{ textAlign: "center", padding: "20px", fontSize: "18px" }}>
-          Loading employees...
-        </div>
-      )}
-      {error && (
-        <div style={{ textAlign: "center", padding: "20px", color: "red", fontSize: "16px" }}>
-          {error}
-        </div>
-      )}
+      <div
+        className="salary-page"
+        style={{ margin: "0 clamp(16px, 5vw, 30px) clamp(16px, 5vw, 30px)" }}
+      >
+        {loading && (
+          <div
+            style={{ textAlign: "center", padding: "20px", fontSize: "18px" }}
+          >
+            Loading employees...
+          </div>
+        )}
+        {error && (
+          <div
+            style={{
+              textAlign: "center",
+              padding: "20px",
+              color: "red",
+              fontSize: "16px",
+            }}
+          >
+            {error}
+          </div>
+        )}
 
-      <SalaryHeader onSearch={setSearchId} searchId={searchId} payrollConfig={payrollConfig} showModal={showPayroll} onCloseModal={() => setShowPayroll(false)} />
-      <SalaryStats employees={employees} payrollConfig={payrollConfig} />
-      <AttendanceSummary />
-      <PayrollTabs payrollConfig={payrollConfig} />
-      <SalaryTable
-        employees={filteredEmployees}
-        openEdit={setEditingEmployee}
-        openAllowance={setAllowanceEmployee}
-        payrollConfig={payrollConfig}
-      />
-      <Pagination />
-
-      {editingEmployee && (
-        <EditSalaryForm
-          employee={editingEmployee}
-          onSave={saveEmployee}
-          onCancel={() => setEditingEmployee(null)}
+        <SalaryHeader
+          onSearch={setSearchId}
+          searchId={searchId}
+          payrollConfig={payrollConfig}
+          showModal={showPayroll}
+          onCloseModal={() => setShowPayroll(false)}
         />
-      )}
-
-      {allowanceEmployee && (
-        <AllowanceModel
-          employee={allowanceEmployee}
-          onSave={saveAllowance}
-          onCancel={() => setAllowanceEmployee(null)}
+        <SalaryStats employees={employees} payrollConfig={payrollConfig} />
+        <AttendanceSummary />
+        <PayrollTabs payrollConfig={payrollConfig} />
+        <SalaryTable
+          employees={filteredEmployees}
+          openEdit={setEditingEmployee}
+          openAllowance={setAllowanceEmployee}
+          payrollConfig={payrollConfig}
         />
-      )}
+        <Pagination />
+
+        {editingEmployee && (
+          <EditSalaryForm
+            employee={editingEmployee}
+            onSave={saveEmployee}
+            onCancel={() => setEditingEmployee(null)}
+          />
+        )}
+
+        {allowanceEmployee && (
+          <AllowanceModel
+            employee={allowanceEmployee}
+            onSave={saveAllowance}
+            onCancel={() => setAllowanceEmployee(null)}
+          />
+        )}
       </div>
     </div>
   );

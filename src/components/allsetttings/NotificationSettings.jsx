@@ -5,8 +5,17 @@ const Toggle = ({ label, checked, onChange }) => {
   return (
     <div className="flex items-center justify-between py-3">
       <span className="text-gray-700 font-medium">{label}</span>
-      <label htmlFor={id} className="relative inline-flex items-center cursor-pointer">
-        <input id={id} type="checkbox" className="sr-only peer" checked={checked} onChange={onChange} />
+      <label
+        htmlFor={id}
+        className="relative inline-flex items-center cursor-pointer"
+      >
+        <input
+          id={id}
+          type="checkbox"
+          className="sr-only peer"
+          checked={checked}
+          onChange={onChange}
+        />
         <div className="w-11 h-6 bg-gray-300 rounded-full peer-focus:ring-2 peer-focus:ring-[#3f3d9c] peer-checked:bg-[#3f3d9c] transition-colors duration-300"></div>
         <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full shadow-md transform transition-transform duration-300 peer-checked:translate-x-5"></div>
       </label>
@@ -83,26 +92,62 @@ const NotificationSetting = () => {
 
   return (
     <div className="p-8 bg-gray-50 min-h-screen">
-      <h2 className="text-3xl font-bold text-center text-gray-800 mb-8">Notification Settings</h2>
+      <h2 className="text-3xl font-bold text-center text-gray-800 mb-8">
+        Notification Settings
+      </h2>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
+          gap: "16px",
+        }}
+      >
         <Section title="Leave Notifications">
-          <Toggle label="Leave Request Submitted" checked={notifications.leaveRequestSubmitted} onChange={() => handleToggle("leaveRequestSubmitted")} />
-          <Toggle label="Leave Approved" checked={notifications.leaveApproved} onChange={() => handleToggle("leaveApproved")} />
-          <Toggle label="Leave Rejected" checked={notifications.leaveRejected} onChange={() => handleToggle("leaveRejected")} />
+          <Toggle
+            label="Leave Request Submitted"
+            checked={notifications.leaveRequestSubmitted}
+            onChange={() => handleToggle("leaveRequestSubmitted")}
+          />
+          <Toggle
+            label="Leave Approved"
+            checked={notifications.leaveApproved}
+            onChange={() => handleToggle("leaveApproved")}
+          />
+          <Toggle
+            label="Leave Rejected"
+            checked={notifications.leaveRejected}
+            onChange={() => handleToggle("leaveRejected")}
+          />
         </Section>
 
         <Section title="Payroll Notifications">
-          <Toggle label="Payroll Processed" checked={notifications.payrollProcessed} onChange={() => handleToggle("payrollProcessed")} />
+          <Toggle
+            label="Payroll Processed"
+            checked={notifications.payrollProcessed}
+            onChange={() => handleToggle("payrollProcessed")}
+          />
         </Section>
 
         <Section title="Employee Notifications">
-          <Toggle label="New Employee Onboarded" checked={notifications.newEmployeeOnboarded} onChange={() => handleToggle("newEmployeeOnboarded")} />
+          <Toggle
+            label="New Employee Onboarded"
+            checked={notifications.newEmployeeOnboarded}
+            onChange={() => handleToggle("newEmployeeOnboarded")}
+          />
         </Section>
 
         <Section title="In-App Alerts">
-          <Toggle label="Pending Leave Requests Badge" checked={notifications.pendingLeaveBadge} onChange={() => handleToggle("pendingLeaveBadge")} />
-          <Toggle label="Low Leave Balance Warning" checked={notifications.lowLeaveBalance} onChange={() => handleToggle("lowLeaveBalance")} />
+          <Toggle
+            label="Pending Leave Requests Badge"
+            checked={notifications.pendingLeaveBadge}
+            onChange={() => handleToggle("pendingLeaveBadge")}
+          />
+          <Toggle
+            label="Low Leave Balance Warning"
+            checked={notifications.lowLeaveBalance}
+            onChange={() => handleToggle("lowLeaveBalance")}
+          />
         </Section>
       </div>
 
@@ -110,14 +155,18 @@ const NotificationSetting = () => {
         onClick={handleSave}
         disabled={loading}
         className={`w-full py-3 mt-4 text-white font-semibold rounded-lg transition duration-300 ${
-          loading ? "bg-[#1a5276] cursor-not-allowed" : "bg-[#3f3d9c] hover:bg-[#2e2c7a]"
+          loading
+            ? "bg-[#1a5276] cursor-not-allowed"
+            : "bg-[#3f3d9c] hover:bg-[#2e2c7a]"
         }`}
       >
         {loading ? "Saving..." : "Save Notifications"}
       </button>
 
       {message && (
-        <p className="mt-4 text-center text-green-600 font-semibold">{message}</p>
+        <p className="mt-4 text-center text-green-600 font-semibold">
+          {message}
+        </p>
       )}
     </div>
   );
