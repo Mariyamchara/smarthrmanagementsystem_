@@ -720,13 +720,20 @@ border-color:#0ea5e9;
 box-shadow:0 0 0 3px rgba(14, 165, 233, 0.1);
 }
 
+.table-container{
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+
 .table-container table{
 width:100%;
 border-collapse:collapse;
 background:white;
+min-width: 600px;
 border-radius:12px;
 overflow:hidden;
-box-shadow:0 4px 20px rgba(0,0,0,0.08);
 }
 
 th,td{
@@ -1024,13 +1031,17 @@ font-size:12px;
     width: 100%;
   }
 
-  .table-container table {
-    font-size: 12px;
+  .table-container {
     border-radius: 8px;
   }
 
+  .table-container table {
+    font-size: 12px;
+    min-width: 520px;
+  }
+
   th, td {
-    padding: 12px 10px;
+    padding: 10px 8px;
   }
 
   th {
@@ -1040,7 +1051,7 @@ font-size:12px;
   .salary-row-actions {
     flex-direction: column;
     gap: 6px;
-    min-width: 100px;
+    min-width: unset;
   }
 
   .salary-action-btn {

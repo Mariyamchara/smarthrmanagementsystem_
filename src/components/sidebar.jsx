@@ -1,5 +1,5 @@
 import React from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import {
   Home,
   Users,
@@ -10,7 +10,9 @@ import {
   WalletCards,
   Package,
   ClipboardList,
+  LogOut,
 } from "lucide-react";
+import { clearStoredAdminSession } from "../lib/adminSession";
 
 const NAV_ITEMS = [
   { id: "dashboard", label: "Dashboard", path: "/dashboard", icon: Home },
@@ -35,34 +37,40 @@ const NAV_ITEMS = [
 ];
 
 function Sidebar({ isOpen = true, onItemClick }) {
+  const navigate = useNavigate();
   const [isMobile, setIsMobile] = React.useState(() => {
     if (typeof window === "undefined") return false;
     return window.innerWidth < 768;
   });
 
   React.useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  const handleLogout = () => {
+    clearStoredAdminSession();
+    navigate("/");
+  };
+
   return (
     <aside
       style={{
-        position: isMobile ? "fixed" : "relative",
-        left: isMobile && isOpen ? 0 : isMobile ? "-100%" : undefined,
-        width: isOpen ? "220px" : isMobile ? "0px" : "72px",
+        position: "fixed",
+        top: 0,
+        left: isMobile ? (isOpen ? 0 : "-100%") : 0,
+        width: isOpen ? "220px" : isMobile ? "220px" : "72px",
         background: "#3f3d9c",
         color: "white",
         minHeight: "100vh",
+        maxHeight: "100vh",
+        display: "flex",
+        flexDirection: "column",
         overflow: "hidden",
         transition: isMobile ? "left 0.3s ease" : "width 0.25s ease",
         flexShrink: 0,
-        zIndex: isMobile ? 50 : 1,
-        top: 0,
-        maxHeight: "100vh",
+        zIndex: 50,
         overflowY: "auto",
       }}
     >
@@ -140,6 +148,35 @@ function Sidebar({ isOpen = true, onItemClick }) {
             })}
           </ul>
         </nav>
+      </div>
+
+      {/* Logout pinned to bottom */}
+      <div style={{ marginTop: "auto", padding: isOpen ? "16px" : "16px 12px" }}>
+        <button
+          onClick={handleLogout}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 12,
+            width: "100%",
+            padding: "10px 14px",
+            borderRadius: 12,
+            border: "none",
+            background: "rgba(255,255,255,0.1)",
+            color: "#d1d5db",
+            cursor: "pointer",
+            fontSize: 14,
+            fontWeight: 500,
+            transition: "background 0.2s ease",
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(239,68,68,0.25)")}
+          onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.1)")}
+        >
+          <LogOut size={18} style={{ flexShrink: 0 }} />
+          {isOpen && <span>Log Out</span>}
+        </button>
       </div>
     </aside>
   );

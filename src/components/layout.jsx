@@ -53,7 +53,7 @@ function Layout() {
           onClick={() => setIsSidebarOpen(false)}
         />
       )}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0, marginLeft: isMobile ? 0 : isSidebarOpen ? "220px" : "72px", transition: "margin-left 0.25s ease" }}>
         <Navbar onMenuToggle={handleMenuToggle} />
         <Outlet />
       </div>
