@@ -65,9 +65,9 @@ export default function Attendance() {
           placeholder="Search by name or ID..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          style={{ padding: "8px 14px", border: "1px solid #d1d5db", borderRadius: "6px", fontSize: "14px", width: "260px" }}
+          style={{ padding: "8px 14px", border: "1px solid #d1d5db", borderRadius: "6px", fontSize: "14px", flex: 1, minWidth: 160 }}
         />
-        <div style={{ display: "flex", gap: "8px" }}>
+        <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
           {["All", "Present", "Absent", "Late", "On Leave"].map((s) => (
             <button key={s} onClick={() => setFilterStatus(s)}
               style={{ padding: "6px 14px", borderRadius: "6px", border: "none", cursor: "pointer", fontSize: "13px", fontWeight: 600,

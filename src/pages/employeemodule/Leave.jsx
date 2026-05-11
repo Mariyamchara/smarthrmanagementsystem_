@@ -29,35 +29,21 @@ export default function Leave() {
   const [successMessage, setSuccessMessage] = useState("");
 
   useEffect(() => {
-    if (!session?.employeeId) {
-      return;
-    }
-
+    if (!session?.employeeId) return;
     let isActive = true;
-
     async function loadLeaves() {
       try {
         setLoading(true);
         const data = await getEmployeeLeaves(session.employeeId);
-        if (isActive) {
-          setLeaves(data);
-          setError("");
-        }
+        if (isActive) { setLeaves(data); setError(""); }
       } catch (err) {
-        if (isActive) {
-          setError(err.message || "Failed to load leave data");
-        }
+        if (isActive) setError(err.message || "Failed to load leave data");
       } finally {
-        if (isActive) {
-          setLoading(false);
-        }
+        if (isActive) setLoading(false);
       }
     }
-
     loadLeaves();
-    return () => {
-      isActive = false;
-    };
+    return () => { isActive = false; };
   }, [session?.employeeId]);
 
   const handleChange = (e) => {
@@ -67,10 +53,7 @@ export default function Leave() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!session?.employeeId) {
-      return;
-    }
-
+    if (!session?.employeeId) return;
     try {
       setSubmitting(true);
       const created = await submitEmployeeLeave({
@@ -80,7 +63,6 @@ export default function Leave() {
         to: form.toDate,
         reason: form.reason,
       });
-
       setLeaves((current) => [created, ...current]);
       setForm(emptyForm);
       setError("");
@@ -145,42 +127,33 @@ export default function Leave() {
             <h3>Leave Status</h3>
             {loading ? (
               <p>Loading leave requests...</p>
+            ) : leaves.length === 0 ? (
+              <p className="muted">No leave requests submitted yet.</p>
             ) : (
-              <div className="table-wrap">
-                <table className="data-table">
-                  <thead>
-                    <tr>
-                      <th>Type</th>
-                      <th>From</th>
-                      <th>To</th>
-                      <th>Reason</th>
-                      <th>Status</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {leaves.length === 0 ? (
-                      <tr>
-                        <td colSpan="5" className="muted">
-                          No leave requests submitted yet.
-                        </td>
-                      </tr>
-                    ) : (
-                      leaves.map((leave) => (
-                        <tr key={leave._id}>
-                          <td>{leave.type}</td>
-                          <td>{String(leave.fromDate || "").slice(0, 10)}</td>
-                          <td>{String(leave.toDate || "").slice(0, 10)}</td>
-                          <td>{leave.reason || "-"}</td>
-                          <td>
-                            <span className={`badge ${statusClass[leave.status] || "badge-warning"}`}>
-                              {leave.status}
-                            </span>
-                          </td>
-                        </tr>
-                      ))
+              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                {leaves.map((leave) => (
+                  <div
+                    key={leave._id}
+                    style={{
+                      border: "1px solid #eef0f7",
+                      borderRadius: 12,
+                      padding: "14px 16px",
+                      background: "#fafbff",
+                    }}
+                  >
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8, gap: 8, flexWrap: "wrap" }}>
+                      <span style={{ fontWeight: 700, fontSize: 14, color: "#1f2340" }}>{leave.type}</span>
+                      <span className={`badge ${statusClass[leave.status] || "badge-warning"}`}>{leave.status}</span>
+                    </div>
+                    <div style={{ display: "flex", gap: 16, flexWrap: "wrap", fontSize: 13, color: "#6b7280", marginBottom: 6 }}>
+                      <span><strong style={{ color: "#374151" }}>From:</strong> {String(leave.fromDate || "").slice(0, 10) || "-"}</span>
+                      <span><strong style={{ color: "#374151" }}>To:</strong> {String(leave.toDate || "").slice(0, 10) || "-"}</span>
+                    </div>
+                    {leave.reason && (
+                      <p style={{ margin: 0, fontSize: 13, color: "#6b7280" }}>{leave.reason}</p>
                     )}
-                  </tbody>
-                </table>
+                  </div>
+                ))}
               </div>
             )}
           </div>

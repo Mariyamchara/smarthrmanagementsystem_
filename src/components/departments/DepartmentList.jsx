@@ -45,16 +45,16 @@ const DepartmentList = () => {
 
       <div style={{ padding: "20px 30px 30px" }}>
         {/* Search + Add */}
-        <div style={{ background: "white", padding: "16px 20px", display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 0 }}>
+        <div className="toolbar-row" style={{ background: "white", padding: "16px 20px", marginBottom: 0 }}>
           <input
             type="text"
             placeholder="Search by department name..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            style={{ padding: "8px 14px", border: "1px solid #d1d5db", borderRadius: "6px", fontSize: "14px", width: "260px" }}
+            style={{ padding: "8px 14px", border: "1px solid #d1d5db", borderRadius: "6px", fontSize: "14px" }}
           />
           <Link to="/departments/add"
-            style={{ background: "#3f3d9c", color: "white", padding: "9px 18px", borderRadius: "6px", textDecoration: "none", fontWeight: "600", fontSize: "14px" }}>
+            style={{ background: "#3f3d9c", color: "white", padding: "9px 18px", borderRadius: "6px", textDecoration: "none", fontWeight: "600", fontSize: "14px", whiteSpace: "nowrap" }}>
             Add New Department
           </Link>
         </div>

@@ -149,6 +149,8 @@ export default function Employees() {
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
+          flexWrap: "wrap",
+          gap: 12,
         }}
       >
         <div>
@@ -159,7 +161,7 @@ export default function Employees() {
             Add, edit and manage employee records
           </p>
         </div>
-        <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+        <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap", width: "100%", maxWidth: 520 }}>
           <input
             type="text"
             placeholder="Search by name, ID or email..."
@@ -170,7 +172,8 @@ export default function Employees() {
               borderRadius: 6,
               border: "none",
               fontSize: 14,
-              width: 260,
+              flex: 1,
+              minWidth: 160,
               outline: "none",
               background: "white",
               color: "#111",

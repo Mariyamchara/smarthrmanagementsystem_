@@ -1,19 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Search, CheckCircle, XCircle, Plus, ArrowUpRight } from "lucide-react";
+import { Search, CheckCircle, XCircle, ArrowUpRight } from "lucide-react";
 import { getDepartments } from "../lib/departmentsApi";
 import { employeesApi } from "../lib/employeesApi";
 import { leavesApi } from "../lib/leavesApi";
 
-const leaveTypes = [
-  "Annual",
-  "Sick",
-  "Casual",
-  "Maternity",
-  "Paternity",
-  "Unpaid",
-  "Compensatory",
-];
 const policyItems = [
   { label: "Annual leave", value: "21 days / yr" },
   { label: "Sick leave", value: "12 days / yr" },
@@ -27,7 +18,6 @@ const policyItems = [
 export default function LeaveManagement() {
   const [filter, setFilter] = useState("All");
   const [search, setSearch] = useState("");
-  const [showForm, setShowForm] = useState(false);
   const [department, setDepartment] = useState("");
   const [leaves, setLeaves] = useState([]);
   const [employees, setEmployees] = useState([]);
@@ -66,15 +56,9 @@ export default function LeaveManagement() {
   const filtered = leaves
     .filter((leave) => filter === "All" || leave.status === filter)
     .filter((leave) => leave.name.toLowerCase().includes(search.toLowerCase()));
-  const pendingCount = leaves.filter(
-    (leave) => leave.status === "Pending",
-  ).length;
-  const approvedCount = leaves.filter(
-    (leave) => leave.status === "Approved",
-  ).length;
-  const rejectedCount = leaves.filter(
-    (leave) => leave.status === "Rejected",
-  ).length;
+  const pendingCount = leaves.filter((leave) => leave.status === "Pending").length;
+  const approvedCount = leaves.filter((leave) => leave.status === "Approved").length;
+  const rejectedCount = leaves.filter((leave) => leave.status === "Rejected").length;
   const activeDepartment = departments.find((item) => item._id === department);
   const selectedDepartmentEmployees = employees.filter(
     (employee) => employee.department === department,
@@ -94,48 +78,30 @@ export default function LeaveManagement() {
     sickUsed,
     sickTotal: Math.max(selectedDepartmentEmployees.length * 12, 12),
   };
-  const selectedEmployeeBalances = selectedDepartmentEmployees.map(
-    (employee) => {
-      const employeeLeaves = leaves.filter(
-        (leave) =>
-          (leave.employeeId
-            ? leave.employeeId === employee.employeeId
-            : leave.name === employee.name) && leave.status === "Approved",
-      );
-      const approvedAnnual = employeeLeaves
-        .filter((leave) => leave.type === "Annual")
-        .reduce((sum, leave) => sum + leave.days, 0);
-      const approvedSick = employeeLeaves
-        .filter((leave) => leave.type === "Sick")
-        .reduce((sum, leave) => sum + leave.days, 0);
-      const approvedCasual = employeeLeaves
-        .filter((leave) => leave.type === "Casual")
-        .reduce((sum, leave) => sum + leave.days, 0);
+  const selectedEmployeeBalances = selectedDepartmentEmployees.map((employee) => {
+    const employeeLeaves = leaves.filter(
+      (leave) =>
+        (leave.employeeId
+          ? leave.employeeId === employee.employeeId
+          : leave.name === employee.name) && leave.status === "Approved",
+    );
+    const approvedAnnual = employeeLeaves
+      .filter((leave) => leave.type === "Annual")
+      .reduce((sum, leave) => sum + leave.days, 0);
+    const approvedSick = employeeLeaves
+      .filter((leave) => leave.type === "Sick")
+      .reduce((sum, leave) => sum + leave.days, 0);
+    const approvedCasual = employeeLeaves
+      .filter((leave) => leave.type === "Casual")
+      .reduce((sum, leave) => sum + leave.days, 0);
 
-      return {
-        name: employee.name,
-        annual: Math.max(0, 21 - approvedAnnual),
-        sick: Math.max(0, 12 - approvedSick),
-        casual: Math.max(0, 7 - approvedCasual),
-      };
-    },
-  );
-
-  const handleApplyLeave = async (form) => {
-    const newLeave = await leavesApi.create({
-      employee: form.employee,
-      type: form.type,
-      from: form.from,
-      to: form.to,
-      reason: form.reason,
-      attachmentName: form.file?.name || "",
-    });
-
-    setLeaves((prev) => [newLeave, ...prev]);
-    setFilter("All");
-    setSearch("");
-    setShowForm(false);
-  };
+    return {
+      name: employee.name,
+      annual: Math.max(0, 21 - approvedAnnual),
+      sick: Math.max(0, 12 - approvedSick),
+      casual: Math.max(0, 7 - approvedCasual),
+    };
+  });
 
   return (
     <div style={{ backgroundColor: "#f3f4f6", minHeight: "100vh" }}>
@@ -196,9 +162,7 @@ export default function LeaveManagement() {
           justify-content: center;
           cursor: pointer;
         }
-        .leave-input,
-        .leave-select,
-        .leave-textarea {
+        .leave-select {
           width: 100%;
           border: 1px solid #D1D5DB;
           border-radius: 10px;
@@ -207,51 +171,18 @@ export default function LeaveManagement() {
           box-sizing: border-box;
           background: #fff;
         }
-        .leave-textarea {
-          min-height: 96px;
-          resize: vertical;
-        }
-        .leave-input:focus,
-        .leave-select:focus,
-        .leave-textarea:focus {
+        .leave-select:focus {
           outline: none;
           border-color: #3f3d9c;
           box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
         }
         @media (max-width: 960px) {
           .leave-grid,
-          .leave-stats,
-          .leave-form-grid {
+          .leave-stats {
             grid-template-columns: 1fr !important;
           }
         }
       `}</style>
-
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "flex-end",
-            marginBottom: 16,
-          }}
-        >
-          <button
-            onClick={() => setShowForm(true)}
-            style={{
-              background: "#3f3d9c",
-              color: "#fff",
-              border: "none",
-              borderRadius: 8,
-              padding: "10px 16px",
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 8,
-              fontWeight: 600,
-              cursor: "pointer",
-            }}
-          >
-            <Plus size={16} /> Apply for leave
-          </button>
-        </div>
 
         <div
           className="leave-stats"
@@ -262,26 +193,10 @@ export default function LeaveManagement() {
             marginBottom: 24,
           }}
         >
-          <Card
-            title="Total leave requests"
-            value={String(leaves.length)}
-            color="#6C63FF"
-          />
-          <Card
-            title="Pending approval"
-            value={String(pendingCount)}
-            color="#F59E0B"
-          />
-          <Card
-            title="Approved requests"
-            value={String(approvedCount)}
-            color="#10B981"
-          />
-          <Card
-            title="Rejected requests"
-            value={String(rejectedCount)}
-            color="#EF4444"
-          />
+          <Card title="Total leave requests" value={String(leaves.length)} color="#6C63FF" />
+          <Card title="Pending approval" value={String(pendingCount)} color="#F59E0B" />
+          <Card title="Approved requests" value={String(approvedCount)} color="#10B981" />
+          <Card title="Rejected requests" value={String(rejectedCount)} color="#EF4444" />
         </div>
 
         <div
@@ -345,7 +260,7 @@ export default function LeaveManagement() {
               ))}
             </div>
 
-            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10, maxHeight: 420, overflowY: "auto", paddingRight: 4 }}>
               {filtered.length === 0 ? (
                 <div style={{ padding: "18px 0", color: "#6B7280" }}>
                   No leave requests match this filter.
@@ -366,9 +281,7 @@ export default function LeaveManagement() {
                   >
                     <div>
                       <p style={{ fontWeight: 600, margin: 0 }}>{leave.name}</p>
-                      <p
-                        style={{ fontSize: 14, color: "#6B7280", marginTop: 4 }}
-                      >
+                      <p style={{ fontSize: 14, color: "#6B7280", marginTop: 4 }}>
                         {leave.type} • {leave.dates} • {leave.days} days
                       </p>
                     </div>
@@ -399,10 +312,8 @@ export default function LeaveManagement() {
                           borderRadius: 999,
                           fontSize: 12,
                           fontWeight: 700,
-                          background:
-                            leave.status === "Approved" ? "#DCFCE7" : "#FEE2E2",
-                          color:
-                            leave.status === "Approved" ? "#166534" : "#991B1B",
+                          background: leave.status === "Approved" ? "#DCFCE7" : "#FEE2E2",
+                          color: leave.status === "Approved" ? "#166534" : "#991B1B",
                         }}
                       >
                         {leave.status}
@@ -484,13 +395,7 @@ export default function LeaveManagement() {
                       background: "#FAFAFA",
                     }}
                   >
-                    <p
-                      style={{
-                        margin: "0 0 8px",
-                        fontSize: 14,
-                        fontWeight: 600,
-                      }}
-                    >
+                    <p style={{ margin: "0 0 8px", fontSize: 14, fontWeight: 600 }}>
                       {employee.name}
                     </p>
                     <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
@@ -535,9 +440,7 @@ export default function LeaveManagement() {
                 </Link>
               </div>
 
-              <div
-                style={{ display: "flex", flexDirection: "column", gap: 12 }}
-              >
+              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                 {policyItems.map((item) => (
                   <div
                     key={item.label}
@@ -549,17 +452,8 @@ export default function LeaveManagement() {
                       borderBottom: "1px solid #F1F5F9",
                     }}
                   >
-                    <span style={{ fontSize: 14, color: "#374151" }}>
-                      {item.label}
-                    </span>
-                    <span
-                      style={{
-                        fontSize: 14,
-                        fontWeight: 600,
-                        color: "#111827",
-                        textAlign: "right",
-                      }}
-                    >
+                    <span style={{ fontSize: 14, color: "#374151" }}>{item.label}</span>
+                    <span style={{ fontSize: 14, fontWeight: 600, color: "#111827", textAlign: "right" }}>
                       {item.value}
                     </span>
                   </div>
@@ -568,17 +462,6 @@ export default function LeaveManagement() {
             </div>
           </div>
         </div>
-
-        {showForm && (
-          <ApplyForm
-            employees={employees.map((employee) => ({
-              employeeId: employee.employeeId,
-              name: employee.name,
-            }))}
-            onClose={() => setShowForm(false)}
-            onSubmitLeave={handleApplyLeave}
-          />
-        )}
       </div>
     </div>
   );
@@ -609,19 +492,9 @@ function Card({ title, value, color = "#6C63FF" }) {
           marginBottom: 12,
         }}
       >
-        <div
-          style={{ width: 14, height: 14, background: color, borderRadius: 3 }}
-        />
+        <div style={{ width: 14, height: 14, background: color, borderRadius: 3 }} />
       </div>
-      <p
-        style={{
-          fontSize: 28,
-          fontWeight: 700,
-          color: "#1A1D23",
-          margin: 0,
-          lineHeight: 1.1,
-        }}
-      >
+      <p style={{ fontSize: 28, fontWeight: 700, color: "#1A1D23", margin: 0, lineHeight: 1.1 }}>
         {value}
       </p>
       <p style={{ fontSize: 13, color: "#6B7280", marginTop: 4 }}>{title}</p>
@@ -632,32 +505,12 @@ function Card({ title, value, color = "#6C63FF" }) {
 function ProgressRow({ label, value, width, color }) {
   return (
     <div style={{ marginBottom: 16 }}>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          marginBottom: 8,
-        }}
-      >
+      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
         <p style={{ margin: 0, fontSize: 14 }}>{label}</p>
         <p style={{ margin: 0, fontSize: 14, color: "#6B7280" }}>{value}</p>
       </div>
-      <div
-        style={{
-          height: 10,
-          background: "#E5E7EB",
-          borderRadius: 999,
-          overflow: "hidden",
-        }}
-      >
-        <div
-          style={{
-            height: "100%",
-            width,
-            background: color,
-            borderRadius: 999,
-          }}
-        />
+      <div style={{ height: 10, background: "#E5E7EB", borderRadius: 999, overflow: "hidden" }}>
+        <div style={{ height: "100%", width, background: color, borderRadius: 999 }} />
       </div>
     </div>
   );
@@ -665,7 +518,6 @@ function ProgressRow({ label, value, width, color }) {
 
 function BalancePill({ label, value }) {
   const exhausted = value <= 0;
-
   return (
     <span
       style={{
@@ -682,206 +534,5 @@ function BalancePill({ label, value }) {
     >
       {label}: {value}d
     </span>
-  );
-}
-
-function ApplyForm({ employees, onClose, onSubmitLeave }) {
-  const [form, setForm] = useState({
-    employee: "",
-    type: "",
-    from: "",
-    to: "",
-    reason: "",
-    file: null,
-  });
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!form.employee || !form.type || !form.from) {
-      return;
-    }
-
-    onSubmitLeave(form);
-  };
-
-  const handleClear = () => {
-    setForm({
-      employee: "",
-      type: "",
-      from: "",
-      to: "",
-      reason: "",
-      file: null,
-    });
-  };
-
-  return (
-    <div
-      style={{
-        position: "fixed",
-        inset: 0,
-        background: "rgba(15, 23, 42, 0.35)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: 20,
-        zIndex: 30,
-      }}
-    >
-      <div
-        className="leave-card"
-        style={{
-          width: "100%",
-          maxWidth: 520,
-          padding: 24,
-          boxSizing: "border-box",
-        }}
-      >
-        <h2 style={{ marginTop: 0, marginBottom: 18, fontSize: 24 }}>
-          Apply for leave
-        </h2>
-
-        <form
-          onSubmit={handleSubmit}
-          style={{ display: "flex", flexDirection: "column", gap: 14 }}
-        >
-          <div
-            className="leave-form-grid"
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-              gap: 12,
-            }}
-          >
-            <select
-              className="leave-select"
-              value={form.employee}
-              onChange={(e) => setForm({ ...form, employee: e.target.value })}
-            >
-              <option value="">Select Employee</option>
-              {employees.map((employee) => (
-                <option key={employee.employeeId} value={employee.employeeId}>
-                  {employee.name}
-                </option>
-              ))}
-            </select>
-
-            <select
-              className="leave-select"
-              value={form.type}
-              onChange={(e) => setForm({ ...form, type: e.target.value })}
-            >
-              <option value="">Leave Type</option>
-              {leaveTypes.map((type) => (
-                <option key={type} value={type}>
-                  {type}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div
-            className="leave-form-grid"
-            style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}
-          >
-            <input
-              type="date"
-              className="leave-input"
-              value={form.from}
-              onChange={(e) => setForm({ ...form, from: e.target.value })}
-            />
-            <input
-              type="date"
-              className="leave-input"
-              value={form.to}
-              onChange={(e) => setForm({ ...form, to: e.target.value })}
-            />
-          </div>
-
-          <textarea
-            placeholder="Reason"
-            className="leave-textarea"
-            value={form.reason}
-            onChange={(e) => setForm({ ...form, reason: e.target.value })}
-          />
-
-          <label
-            htmlFor="leave-file-upload"
-            style={{
-              display: "block",
-              border: "1px dashed #93C5FD",
-              borderRadius: 12,
-              padding: "16px 14px",
-              background: "#F8FBFF",
-              color: "#3f3d9c",
-              cursor: "pointer",
-              textAlign: "center",
-              fontWeight: 600,
-            }}
-          >
-            {form.file ? form.file.name : "Click to upload PDF / JPG"}
-          </label>
-          <input
-            id="leave-file-upload"
-            type="file"
-            accept=".pdf,image/*"
-            style={{ display: "none" }}
-            onChange={(e) =>
-              setForm({ ...form, file: e.target.files?.[0] ?? null })
-            }
-          />
-
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "flex-end",
-              gap: 10,
-              flexWrap: "wrap",
-            }}
-          >
-            <button
-              type="button"
-              onClick={handleClear}
-              style={{
-                padding: "10px 14px",
-                borderRadius: 10,
-                border: "1px solid #D1D5DB",
-                background: "#fff",
-                cursor: "pointer",
-              }}
-            >
-              Clear
-            </button>
-            <button
-              type="button"
-              onClick={onClose}
-              style={{
-                padding: "10px 14px",
-                borderRadius: 10,
-                border: "1px solid #D1D5DB",
-                background: "#fff",
-                cursor: "pointer",
-              }}
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              style={{
-                padding: "10px 14px",
-                borderRadius: 10,
-                border: "none",
-                background: "#3f3d9c",
-                color: "#fff",
-                fontWeight: 600,
-                cursor: "pointer",
-              }}
-            >
-              Submit
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
   );
 }

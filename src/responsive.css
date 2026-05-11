@@ -314,6 +314,36 @@
   }
 }
 
+/* Toolbar row: search + action button */
+.toolbar-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.toolbar-row input[type="text"] {
+  flex: 1;
+  min-width: 160px;
+  width: auto !important;
+}
+
+@media (max-width: 480px) {
+  .toolbar-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .toolbar-row input[type="text"],
+  .toolbar-row a,
+  .toolbar-row button {
+    width: 100% !important;
+    box-sizing: border-box;
+    text-align: center;
+  }
+}
+
 /* Print styles */
 @media print {
   body {

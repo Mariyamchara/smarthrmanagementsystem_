@@ -1,6 +1,5 @@
-import { ChevronLeft, LogOut, Menu } from "lucide-react";
+import { ChevronLeft, Menu } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { clearStoredEmployeeSession } from "../../lib/employeeSession";
 
 const ROUTE_LABELS = {
   dashboard: "Dashboard",
@@ -44,11 +43,7 @@ export default function EmployeeNavbar({ onMenuToggle }) {
   const breadcrumbs = getBreadcrumbs(location.pathname);
 
   const handleBack = () => {
-    if (window.history.length > 1) {
-      navigate(-1);
-      return;
-    }
-
+    if (window.history.length > 1) { navigate(-1); return; }
     navigate("/employee/dashboard");
   };
 
@@ -91,19 +86,7 @@ export default function EmployeeNavbar({ onMenuToggle }) {
         </div>
       </div>
 
-      <div className="employee-navbar-right">
-        <button
-          type="button"
-          className="employee-logout-btn"
-          onClick={() => {
-            clearStoredEmployeeSession();
-            navigate("/");
-          }}
-        >
-          <LogOut size={16} />
-          Log Out
-        </button>
-      </div>
+      <div className="employee-navbar-right" />
     </header>
   );
 }
