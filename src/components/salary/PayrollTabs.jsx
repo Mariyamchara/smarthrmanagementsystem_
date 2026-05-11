@@ -1,9 +1,14 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { employeeService, payrollService, salaryIncrementService } from "../../services/api";
+import {
+  employeeService,
+  payrollService,
+  salaryIncrementService,
+} from "../../services/api";
 import { CURRENCY_SYMBOLS } from "../../lib/payrollConfig";
 
 function PayrollTabs({ payrollConfig = {} }) {
-  const symbol = CURRENCY_SYMBOLS[payrollConfig.defaultCurrency] || CURRENCY_SYMBOLS.INR;
+  const symbol =
+    CURRENCY_SYMBOLS[payrollConfig.defaultCurrency] || CURRENCY_SYMBOLS.INR;
   const [employees, setEmployees] = useState([]);
   const [records, setRecords] = useState([]);
   const [increments, setIncrements] = useState([]);
@@ -13,11 +18,12 @@ function PayrollTabs({ payrollConfig = {} }) {
   const loadData = async () => {
     try {
       setLoading(true);
-      const [employeeList, salaryRecords, salaryIncrementRecords] = await Promise.all([
-        employeeService.getAll(),
-        payrollService.getAll(),
-        salaryIncrementService.getAll(),
-      ]);
+      const [employeeList, salaryRecords, salaryIncrementRecords] =
+        await Promise.all([
+          employeeService.getAll(),
+          payrollService.getAll(),
+          salaryIncrementService.getAll(),
+        ]);
       setEmployees(employeeList);
       setRecords(salaryRecords);
       setIncrements(salaryIncrementRecords);
@@ -49,8 +55,12 @@ function PayrollTabs({ payrollConfig = {} }) {
         return;
       }
 
-      const currentTime = new Date(increment.incrementDate || increment.createdAt || 0).getTime();
-      const existingTime = new Date(existing.incrementDate || existing.createdAt || 0).getTime();
+      const currentTime = new Date(
+        increment.incrementDate || increment.createdAt || 0,
+      ).getTime();
+      const existingTime = new Date(
+        existing.incrementDate || existing.createdAt || 0,
+      ).getTime();
       if (currentTime > existingTime) {
         map.set(key, increment);
       }
@@ -75,11 +85,9 @@ function PayrollTabs({ payrollConfig = {} }) {
       }
 
       const currentKey =
-        Number(record.year || 0) * 100 +
-        Number(record.month || 0);
+        Number(record.year || 0) * 100 + Number(record.month || 0);
       const existingKey =
-        Number(existing.year || 0) * 100 +
-        Number(existing.month || 0);
+        Number(existing.year || 0) * 100 + Number(existing.month || 0);
 
       if (currentKey > existingKey) {
         latestRecordByEmployeeId.set(record.employeeId, record);
@@ -88,7 +96,9 @@ function PayrollTabs({ payrollConfig = {} }) {
 
       if (currentKey === existingKey) {
         const currentProcessedOn = new Date(record.processedOn || 0).getTime();
-        const existingProcessedOn = new Date(existing.processedOn || 0).getTime();
+        const existingProcessedOn = new Date(
+          existing.processedOn || 0,
+        ).getTime();
         if (currentProcessedOn > existingProcessedOn) {
           latestRecordByEmployeeId.set(record.employeeId, record);
         }
@@ -103,8 +113,19 @@ function PayrollTabs({ payrollConfig = {} }) {
         const employeeAllowance = Number(employee.allowance || 0);
         const fallbackDeduction = Math.round(employeeBasic * 0.1);
         const fallbackTax = Math.round(employeeBasic * 0.05);
-        const departmentName = employee.departmentName || employee.department || "-";
-        const incrementPercentage = Number(latestIncrement?.incrementPercentage || 0);
+        const departmentName =
+          employee.departmentName || employee.department || "-";
+        const baseIncrementPercentage = Number(
+          latestIncrement?.incrementPercentage || 0,
+        );
+        const deriveAllowanceIncrement = (allowance, basic) => {
+          if (basic <= 0) return 0;
+          return Number(((allowance / basic) * 100).toFixed(2));
+        };
+        const defaultIncrementPercentage =
+          baseIncrementPercentage > 0
+            ? baseIncrementPercentage
+            : deriveAllowanceIncrement(employeeAllowance, employeeBasic);
 
         if (latestRecord) {
           const recordBasic = Number(latestRecord.basic || 0);
@@ -115,7 +136,15 @@ function PayrollTabs({ payrollConfig = {} }) {
           const shouldUseEmployeeCompensation =
             !hasMeaningfulAmount(recordBasic) &&
             !hasMeaningfulAmount(recordAllowance) &&
-            (hasMeaningfulAmount(employeeBasic) || hasMeaningfulAmount(employeeAllowance));
+            (hasMeaningfulAmount(employeeBasic) ||
+              hasMeaningfulAmount(employeeAllowance));
+          const incrementPercentage =
+            baseIncrementPercentage > 0
+              ? baseIncrementPercentage
+              : deriveAllowanceIncrement(
+                  recordAllowance || employeeAllowance,
+                  recordBasic || employeeBasic,
+                );
 
           if (!shouldUseEmployeeCompensation) {
             return {
@@ -141,7 +170,8 @@ function PayrollTabs({ payrollConfig = {} }) {
             tax,
             incrementPercentage,
             netSalary:
-              hasMeaningfulAmount(recordNetSalary) && !shouldUseEmployeeCompensation
+              hasMeaningfulAmount(recordNetSalary) &&
+              !shouldUseEmployeeCompensation
                 ? recordNetSalary
                 : employeeBasic + employeeAllowance - deduction - tax,
           };
@@ -161,21 +191,31 @@ function PayrollTabs({ payrollConfig = {} }) {
           allowance,
           deduction,
           tax,
-          incrementPercentage,
+          incrementPercentage: defaultIncrementPercentage,
           netSalary: basic + allowance - deduction - tax,
           status: "Not Generated",
         };
       })
-      .sort((a, b) => String(a.employeeId || "").localeCompare(String(b.employeeId || "")));
+      .sort((a, b) =>
+        String(a.employeeId || "").localeCompare(String(b.employeeId || "")),
+      );
   }, [employees, latestIncrementByEmployeeId, records]);
 
   if (loading) {
-    return <div style={{ textAlign: "center", padding: "20px" }}>Loading payroll data...</div>;
+    return (
+      <div style={{ textAlign: "center", padding: "20px" }}>
+        Loading payroll data...
+      </div>
+    );
   }
 
   return (
     <div className="payroll-tabs">
-      {error && <div style={{ textAlign: "center", padding: "20px", color: "red" }}>{error}</div>}
+      {error && (
+        <div style={{ textAlign: "center", padding: "20px", color: "red" }}>
+          {error}
+        </div>
+      )}
 
       <div className="payroll-content">
         <div className="payroll-section-label">Detailed Payroll</div>
@@ -201,18 +241,41 @@ function PayrollTabs({ payrollConfig = {} }) {
                   <td>{record.employeeId}</td>
                   <td>{record.employeeName}</td>
                   <td>{record.department}</td>
-                  <td>{symbol}{Number(record.basic || 0).toLocaleString("en-IN")}</td>
-                  <td>{Number(record.incrementPercentage || 0).toLocaleString("en-IN")}%</td>
-                  <td>{symbol}{Number(record.allowance || 0).toLocaleString("en-IN")}</td>
-                  <td>{symbol}{Number(record.deduction || 0).toLocaleString("en-IN")}</td>
-                  <td>{symbol}{Number(record.tax || 0).toLocaleString("en-IN")}</td>
-                  <td>{symbol}{Number(record.netSalary || 0).toLocaleString("en-IN")}</td>
+                  <td>
+                    {symbol}
+                    {Number(record.basic || 0).toLocaleString("en-IN")}
+                  </td>
+                  <td>
+                    {Number(record.incrementPercentage || 0).toLocaleString(
+                      "en-IN",
+                    )}
+                    %
+                  </td>
+                  <td>
+                    {symbol}
+                    {Number(record.allowance || 0).toLocaleString("en-IN")}
+                  </td>
+                  <td>
+                    {symbol}
+                    {Number(record.deduction || 0).toLocaleString("en-IN")}
+                  </td>
+                  <td>
+                    {symbol}
+                    {Number(record.tax || 0).toLocaleString("en-IN")}
+                  </td>
+                  <td>
+                    {symbol}
+                    {Number(record.netSalary || 0).toLocaleString("en-IN")}
+                  </td>
                   <td>{record.status}</td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan="10" style={{ textAlign: "center", padding: "20px" }}>
+                <td
+                  colSpan="10"
+                  style={{ textAlign: "center", padding: "20px" }}
+                >
                   No payroll generated yet.
                 </td>
               </tr>
