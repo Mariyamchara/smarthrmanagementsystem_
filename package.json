@@ -13,9 +13,7 @@
     "preview": "vite preview",
     "lint": "eslint .",
     "db:sync": "node server/migrate-to-mysql.js",
-    "seed": "node server/seed-mysql.js",
     "migrate:mysql": "node server/migrate-to-mysql.js",
-    "seed:mysql": "node server/seed-mysql.js",
     "start": "node api/index.js"
   },
   "dependencies": {

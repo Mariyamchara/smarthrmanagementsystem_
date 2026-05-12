@@ -8,8 +8,6 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { exec } from "child_process";
 import { connectToDatabase, sequelize } from "../server/db-mysql.js";
-import seedDepartments from "../server/data/seedDepartments.js";
-import seedEmployees from "../server/data/seedEmployees.js";
 import seedAdminProfile from "../server/data/seedAdminProfile.js";
 import Department from "../server/models-mysql/Department.js";
 import Employee from "../server/models-mysql/Employee.js";
@@ -276,7 +274,7 @@ const parseMonthYear = (monthInput) => {
   return { month: now.getMonth() + 1, year: now.getFullYear() };
 };
 
-const buildPayrollRecordPayload = ({
+const buildPayrollRecordPayload = async ({
   employeeRecord,
   month,
   year,
@@ -288,8 +286,13 @@ const buildPayrollRecordPayload = ({
   const employee = toPlain(employeeRecord);
   const basic = asNumber(employee.salary);
   const allowance = asNumber(employee.allowance);
-  const deduction = Math.round(basic * 0.1);
-  const tax = Math.round(basic * 0.05);
+
+  // Get payroll configuration for tax rate
+  const payrollConfig = await getAppSettingValue(SETTINGS_KEYS.payrollConfig, defaultPayrollConfig);
+  const tdsRate = (payrollConfig?.defaultTdsRate || 10) / 100; // Convert percentage to decimal
+
+  const deduction = Math.round(basic * 0.1); // 10% deduction (could be made configurable too)
+  const tax = Math.round(basic * tdsRate);
   const netSalary = basic + allowance - deduction - tax;
 
   return {
@@ -488,8 +491,8 @@ function serializeAdminProfile(record) {
     permissions: {
       employees: true,
       leaves: true,
-      settings: false,
-      salary: false,
+      settings: true,
+      salary: true,
       ...(profile.permissions || {}),
     },
   };
@@ -1979,9 +1982,10 @@ app.post("/api/salaries/generate", requireSalaryPermission, async (req, res) => 
       },
     });
 
-    const recordsPayload = targetMonths.flatMap((entry) =>
-      employees.map((employeeRecord) =>
-        buildPayrollRecordPayload({
+    const recordsPayload = [];
+    for (const entry of targetMonths) {
+      for (const employeeRecord of employees) {
+        const payload = await buildPayrollRecordPayload({
           employeeRecord,
           month: entry.month,
           year: entry.year,
@@ -1989,9 +1993,10 @@ app.post("/api/salaries/generate", requireSalaryPermission, async (req, res) => 
           processedOn: processedOnValue,
           periodFrom: entry.periodFrom,
           periodTo: entry.periodTo,
-        })
-      )
-    );
+        });
+        recordsPayload.push(payload);
+      }
+    }
 
     await SalaryRecord.bulkCreate(recordsPayload);
 
@@ -2118,94 +2123,6 @@ app.patch("/api/salary-increments/:id/status", requireSalaryPermission, async (r
   }
 });
 
-async function ensureSeedDepartments() {
-  if ((await Department.count()) > 0) {
-    return;
-  }
-
-  await Department.bulkCreate(seedDepartments);
-  console.log(`Inserted ${seedDepartments.length} starter departments`);
-}
-
-async function ensureSeedEmployees() {
-  if ((await Employee.count()) > 0) {
-    return;
-  }
-
-  const employees = [];
-  for (const employee of seedEmployees) {
-    employees.push({
-      ...employee,
-      department: await resolveDepartmentId(employee.department),
-      salary: asNumber(employee.salary),
-      allowance: asNumber(employee.allowance),
-    });
-  }
-
-  await Employee.bulkCreate(employees, { individualHooks: true });
-  console.log(`Inserted ${seedEmployees.length} starter employees`);
-}
-
-async function ensureSeedAdminProfile() {
-  if ((await AdminProfile.count()) === 0) {
-    await AdminProfile.bulkCreate(seedAdminProfile, { individualHooks: true });
-    console.log(`Inserted ${seedAdminProfile.length} starter admin profiles`);
-  }
-
-  await ensureAdminProfileDocument();
-}
-
-async function ensureEmployeeDepartmentsExist() {
-  const employees = await Employee.findAll();
-  for (const employee of employees) {
-    await serializeEmployee(employee);
-  }
-}
-
-async function ensureSeedLeaves() {
-  if ((await Leave.count()) > 0) {
-    return;
-  }
-
-  const seededLeaves = [
-    {
-      employeeId: "EMP001",
-      employeeName: "Amir Khan",
-      department: await resolveDepartmentId("HR"),
-      type: "Annual",
-      fromDate: new Date("2026-04-08"),
-      toDate: new Date("2026-04-10"),
-      days: 3,
-      status: "Pending",
-      reason: "Family commitment",
-    },
-    {
-      employeeId: "EMP002",
-      employeeName: "Sara Ali",
-      department: await resolveDepartmentId("IT"),
-      type: "Sick",
-      fromDate: new Date("2026-04-09"),
-      toDate: new Date("2026-04-11"),
-      days: 3,
-      status: "Pending",
-      reason: "Medical rest",
-    },
-    {
-      employeeId: "EMP003",
-      employeeName: "Bilal Khan",
-      department: await resolveDepartmentId("Database"),
-      type: "Casual",
-      fromDate: new Date("2026-04-12"),
-      toDate: new Date("2026-04-12"),
-      days: 1,
-      status: "Approved",
-      reason: "Personal errand",
-    },
-  ];
-
-  await Leave.bulkCreate(seededLeaves);
-}
-
 async function ensureAppSettingsDefaults() {
   const existing = await AppSetting.findAll({ attributes: ["key"] });
   const keys = new Set(existing.map((record) => record.get("key")));
@@ -2262,16 +2179,10 @@ async function startServer() {
   try {
     await connectToDatabase();
     
-    // In serverless, we only sync and seed if explicitly requested via env or on first run
-    // Syncing on every request can be slow and cause timeouts
+    // In serverless, we only sync and apply defaults when explicitly requested.
     if (process.env.DB_SYNC === 'true') {
       await sequelize.sync({ alter: true });
       await ensureAppSettingsDefaults();
-      await ensureSeedDepartments();
-      await ensureSeedEmployees();
-      await ensureSeedAdminProfile();
-      await ensureEmployeeDepartmentsExist();
-      await ensureSeedLeaves();
       await upgradePlaintextPasswords();
     }
     

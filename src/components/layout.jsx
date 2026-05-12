@@ -41,7 +41,7 @@ function Layout() {
 
   return (
     <div style={{ display: "flex", minHeight: "100vh", background: "#F4F5F7" }}>
-      <Sidebar isOpen={isSidebarOpen} onItemClick={handleSidebarClose} />
+      <Sidebar isOpen={isSidebarOpen} isMobile={isMobile} onItemClick={handleSidebarClose} />
       {isSidebarOpen && isMobile && (
         <div
           style={{

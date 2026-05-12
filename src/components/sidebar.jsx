@@ -36,18 +36,8 @@ const NAV_ITEMS = [
   { id: "profile", label: "Profile", path: "/profile", icon: UserCircle },
 ];
 
-function Sidebar({ isOpen = true, onItemClick }) {
+function Sidebar({ isOpen = true, isMobile = false, onItemClick }) {
   const navigate = useNavigate();
-  const [isMobile, setIsMobile] = React.useState(() => {
-    if (typeof window === "undefined") return false;
-    return window.innerWidth < 768;
-  });
-
-  React.useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
 
   const handleLogout = () => {
     clearStoredAdminSession();
@@ -63,15 +53,14 @@ function Sidebar({ isOpen = true, onItemClick }) {
         width: isOpen ? "220px" : isMobile ? "220px" : "72px",
         background: "#3f3d9c",
         color: "white",
-        minHeight: "100vh",
-        maxHeight: "100vh",
+        height: "100vh",
         display: "flex",
         flexDirection: "column",
-        overflow: "hidden",
+        overflowX: "hidden",
+        overflowY: "auto",
         transition: isMobile ? "left 0.3s ease" : "width 0.25s ease",
         flexShrink: 0,
         zIndex: 50,
-        overflowY: "auto",
       }}
     >
       <div style={{ padding: isOpen ? "24px 16px" : "20px 12px" }}>
